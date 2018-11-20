@@ -250,10 +250,8 @@ flattenAgain l =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional Nil = Full (Nil)
-seqOptional (Empty :. _) = Empty
-seqOptional (Full h :. l) =
-  error "todo : liste contenant des Empty"
+seqOptional =
+  foldRight (twiceOptional (:.)) (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -275,8 +273,10 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+find _ Nil = Empty
+find f (h :. l) =
+  if f h then Full h
+  else find f l
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -294,9 +294,8 @@ find =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
-
+lengthGT4 (_:._:._:._:._:._) = True
+lengthGT4 _ = False
 -- | Reverse a list.
 --
 -- >>> reverse Nil
@@ -312,7 +311,7 @@ reverse ::
   List a
   -> List a
 reverse =
-  error "todo: Course.List#reverse"
+  foldLeft (flip (:.)) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
